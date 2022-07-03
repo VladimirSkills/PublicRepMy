@@ -47,6 +47,7 @@ class PetFriends:
         return status, result
 
 
+
     # Изменение фото первого питомца в списке - ФИЧА-2
     """Выносим pet_id в аргументы функции..."""
     def change_pet_photo(self, auth_key: json, pet_photo: str, pet_id: str) -> json:
@@ -84,7 +85,8 @@ class PetFriends:
 pf = PetFriends()
 # Для запуска тестов нужно добавить запрос на получение ключа: pf.get_api_key (см. учебку)
 
-"""Тестируем: Добавление фото к созданному питомцу без фото => post_add_pet_photo"""
+"""Тестируем: Добавление фото к созданному питомцу без фото => post_add_pet_photo
+Для этого теста и требовалось определение id/idp для конкретно созданного питомца - в первых двух запросах...ФИЧА-1"""
 def test_post_add_petfoto(pet_photo=r'../images/king-kong1.jpg'):
     # Получаем полный путь изображения питомца и сохраняем в переменную pet_photo
     pet_photo = os.path.join(os.path.dirname(__file__), pet_photo)
@@ -106,7 +108,7 @@ def test_post_add_petfoto(pet_photo=r'../images/king-kong1.jpg'):
     assert value_image1 != value_image2
 
 
-"""Тестируем: Изменение фото первого питомца в списке => change_pet_photo"""
+"""Тестируем: Изменение фото первого питомца в списке => change_pet_photo => ФИЧА-2"""
 # Для запуска нужно в т.ч. добавить запрос на получение списка питомцев: get_list_of_pets
 def test_changes_petfoto(pet_photo=r'../images/king-kong3.jpg'):
     # Получаем полный путь изображения питомца и сохраняем в переменную pet_photo
@@ -127,7 +129,7 @@ def test_changes_petfoto(pet_photo=r'../images/king-kong3.jpg'):
     assert value_image1 != value_image2
 
 
-"""Тестируем добавление питомца с фото без применения MultipartEncoder и др..."""
+"""Тестируем добавление питомца с фото без применения MultipartEncoder и др...ФИЧА-3 и 4. """
 def test_add_new_pet_with_photo(name='King-Kong', animal_type='Monkey', age='155', pet_photo=r'../images/king-kong3.jpg'):
     # Получаем полный путь изображения питомца и сохраняем в переменную pet_photo
     pet_photo = os.path.join(os.path.dirname(__file__), pet_photo)
@@ -171,7 +173,8 @@ def test_delete_all_pets():
 
 
 
-"""ФИКСТУРЫ"""
+"""ФИКСТУРЫ / прописываем их в файле conftest.py (в одной папке с тестами), откуда некоторые из них
+будут запускаться автоматически"""
 
 # ФИЧА-8. Фикстура для получения ключа auth_key
 # После её назначения, в запросе get_api_key не будет необходимости
@@ -265,7 +268,7 @@ class TestDeletePets:
 
 
 """ДЕКОРАТОРЫ / импортируются из файла: conftest.py - в котором они прописываются"""
-# Теория:
+# ФИЧА-12. Теория:
 def do_it_twice(func):  # создаём декоратор
    def wrapper(*args, **kwargs):  # эта функция wrapper выступает, как обёртка/шаблон для декорирования рабочей функции say_word. [*args, **kwargs] - аргументы, которые могут быть в рабочей функции, в данном случае say_word.
        # В тело функции wrapper добавляем нужный код для рабочей функции say_word - т.е. какое-то дополнение,
