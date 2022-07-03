@@ -213,9 +213,10 @@ def time_delta():
 
 
 """<<<<<< Примеры ТЕСТов для фикстур >>>>>>>"""
+
 @pytest.mark.usefixtures("get_name_func")  # фикстура для вывода в консоли названия теста
-def test_get_api_key(get_api_keys):  # в аргументе функции - фикстура для получения ключа
-    result = get_api_keys
+def test_get_api_key(get_api_key_fix):  # в аргументе функции - фикстура для получения ключа
+    result = get_api_key_fix
     # Сверяем полученные данные с нашими ожиданиями
     assert 'key' in result
 
@@ -253,10 +254,10 @@ def time_delta_teardown(request):
 class TestDeletePets:
 
     """Тестируем возможность удаления одного питомца"""
-    def test_delete_first_pet(self, get_api_keys):
+    def test_delete_first_pet(self, get_api_key_fix):
 
     """Тестируем удаление всех питомцев"""
-    def test_delete_all_pets(self, get_api_keys):
+    def test_delete_all_pets(self, get_api_key_fix):
 
 # >>>Out print:
 # >>Название теста из класса: test_delete_first_pet PASSED[90 %]
@@ -291,21 +292,21 @@ say_word("Привет!")  # Вызываем нашу рабочую функц
 
 # ФИЧА-12. Создаём декоратор повтора вызова функции n-раз
 def do_repeat_it(func):
-    def wrapper(get_api_keys):
+    def wrapper(get_api_key_fix):
         for i in range(3):
-            func(get_api_keys)
+            func(get_api_key_fix)
     return wrapper
 
 # Применяем декоратор после импортирования следующим образом:
 @do_repeat_it
-def test_add_new_pet(get_api_keys, 'и другие параметры')  # декорируемая функция
+def test_add_new_pet(get_api_key_fix, 'и другие параметры')  # декорируемая функция
 
 
 # ФИЧА-13. Декоратор получения ответа в файл для test_get_all_pets
 def add_file_log(func):
-    def wrapper(get_api_keys):
-        func(get_api_keys)
-        headers = {'auth_key': get_api_keys['key']}
+    def wrapper(get_api_key_fix):
+        func(get_api_key_fix)
+        headers = {'auth_key': get_api_key_fix['key']}
         res = requests.get("https://petfriends.skillfactory.ru/api/pets", headers=headers,
                            params={'filter': "my_pets"})
         content = res.headers
@@ -330,7 +331,7 @@ def add_file_log(func):
 
 # Применяем декоратор после импортирования следующим образом:
 @add_file_log
-def test_get_all_pets(get_api_keys, filter='my_pets'):
+def test_get_all_pets(get_api_key_fix, filter='my_pets'):
 
 
 
