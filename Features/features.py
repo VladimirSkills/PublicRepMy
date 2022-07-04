@@ -335,4 +335,50 @@ def test_get_all_pets(get_api_key_fix, filter='my_pets'):
 
 
 
+"""ПАРАМЕТРИЗАЦИЯ ТЕСТОВ PYTEST"""
+# import pytest
+# См. доп. примеры: https://pytest-docs-ru.readthedocs.io/ru/latest/example/index.html
+
+"""ФИЧА-14. По умолчанию pytest экранирует любые не ASCII-символы,
+которые используются в строках unicode для параметризации.
+Например, если запустить тест для функции "python_string_slicer" используя фикстуру (см. ниже),
+то на выходе получим закодированную кириллицу: u041a/u043e/u0440/..."""
+
+# Параметризация теста с помощью фикстуры:
+def python_string_slicer(str):
+    if len(str) < 50 or "python" in str:
+        return str
+    else:
+        return str[0:50]
+
+# Функция извлекает данные из параметра фикстуры для вывода их в названии теста в консоли:
+def generate_id(val):
+    return "params: {0}".format(str(val))
+
+@pytest.fixture(scope="function", params=[("Короткая строка", "Короткая строка")], ids=generate_id)
+def param_fun(request):
+    return request.param
+
+def test_python_string_slicer(param_fun):
+    (input, expected_output) = param_fun
+    result = python_string_slicer(input)
+    print("\nВходная строка: {0}\nВыходная строка: {1}\nОжидаемое значение: {2}".format(input, result, expected_output))
+    assert result == expected_output
+
+# >>> Out print:
+# test_parametriz.py::test_python_string_slicer[params: ('\u041a\u043e\u0440\u043e\u0442\u043a\u0430\u044f...)] PASSED [100%]
+# Входная строка: Короткая строка
+# Выходная строка: Короткая строка
+# Ожидаемое значение: Короткая строка
+
+"""...Для того, чтобы использовать строки unicode в параметризации и видеть их в терминале,
+как есть (без экранирования), нужно прописать в файле pytest.ini следующее:
+[pytest]
+disable_test_id_escaping_and_forfeit_all_rights_to_community_support = True
+В результате мы получим результат теста в читабельном для кириллицы виде:
+"""
+# >>> Out print:
+# test_parametriz.py::test_python_string_slicer[params: ('Короткая строка', 'Короткая строка')] PASSED [100%]
+# ...
+
 
