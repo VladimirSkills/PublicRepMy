@@ -238,16 +238,16 @@ def test_get_api_key(get_api_key_fix):  # в аргументе функции -
 
 """ФИЧА-11. ПРИМЕР ПРИМЕНЕНИЯ ФИКСТУР ДЛЯ КЛАССА"""
 
-# БЛОК SETUP:
+# БЛОК SETUP (код, предшествующий исполнению основной функции)
 # Фикстура для класса работает в паре с: @pytest.mark.usefixtures("имя фикстуры")
 @pytest.fixture()  # если указать scope="class", фикстура исполнится только для первого теста в классе
 # Получение названия выполняемого теста
 def get_name_func_setup(request):
     print("Название теста из класса:", request.node.name)
-    yield
+    yield  # спец. слово, обозначающее исполняемую функцию
 
 
-# БЛОК TEARDOWN:
+# БЛОК TEARDOWN (код, идущий после исполнения основной функции)
 @pytest.fixture(scope="class")
 # Получение времени обработки теста для класса
 def time_delta_teardown(request):
@@ -255,6 +255,14 @@ def time_delta_teardown(request):
     yield
     end_time = time.time_ns()
     print(f"Время теста для класса {request.node.name}: {(end_time - start_time)//1000000}мс")
+
+# ПРИМЕНЧАНИЕ!
+"""Блоки setup и teardown, в классическом представлении, используются внутри одной фикстуры:
+код setup...
+yield...
+код teardown...
+Но возможно разбить их на две фикстуры, как сделано выше... Это, как будет удобно.
+"""
 
 
 """<<<<<< Примеры ТЕСТов для КЛАССОВ >>>>>>>"""
@@ -385,6 +393,7 @@ def test_python_string_slicer(param_fun):
 как есть (без экранирования), нужно прописать в файле pytest.ini следующее:
 [pytest]
 disable_test_id_escaping_and_forfeit_all_rights_to_community_support = True
+Сам файл pytest.ini нужно создать в папке с тестами самостоятельно.
 В итоге мы получим результат теста в читабельном для кириллицы виде:
 """
 # >>> Out print:
