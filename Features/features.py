@@ -7,6 +7,15 @@ import time
 import json
 import os  # используем для работы с каталогами (save photo path)
 
+"""
+Скрипт для запуска конкретного теста из Terminal: python -m pytest tests/test_parametriz.py::test_triangle
+tests - папка с файлами в корне проекта,
+test_parametriz.py - название файла с тестами,
+test_triangle - имя тест-функции.
+Другие скрипты для вызова тестов и отчётов: https://docs.pytest.org/en/6.2.x/usage.html
+"""
+
+
 class PetFriends:
     """Библиотека веб приложения Pet Friends"""
 
@@ -338,6 +347,7 @@ def test_get_all_pets(get_api_key_fix, filter='my_pets'):
 """ПАРАМЕТРИЗАЦИЯ ТЕСТОВ PYTEST"""
 # import pytest
 # См. доп. примеры: https://pytest-docs-ru.readthedocs.io/ru/latest/example/index.html
+# Доп. видео: https://www.youtube.com/watch?v=OVaKlTR87yk
 
 """ФИЧА-14. По умолчанию pytest экранирует любые не ASCII-символы,
 которые используются в строках unicode для параметризации.
@@ -375,10 +385,66 @@ def test_python_string_slicer(param_fun):
 как есть (без экранирования), нужно прописать в файле pytest.ini следующее:
 [pytest]
 disable_test_id_escaping_and_forfeit_all_rights_to_community_support = True
-В результате мы получим результат теста в читабельном для кириллицы виде:
+В итоге мы получим результат теста в читабельном для кириллицы виде:
 """
 # >>> Out print:
 # test_parametriz.py::test_python_string_slicer[params: ('Короткая строка', 'Короткая строка')] PASSED [100%]
 # ...
 
 
+
+"""ФИЧА-15. Фикстура 'fix_api_key' (прописывается в файле: conftest.py) предназначена
+для получения ключа auth_key в тестах REST API c параметризацией"""
+
+# Для активации именно данной фикстуры, нужно атрибут 'pytest.key' указать вместо ключа auth_key в тест-функции!
+@pytest.fixture(autouse=True)
+def fix_api_key():
+    """Фикстура для получения ключа в параметризированных тестах"""
+    # Отправляем запрос и сохраняем полученный ответ с кодом статуса в status, а текст ответа в result
+    status, pytest.key = pf.get_api_key(valid_email, valid_password)
+    # Сверяем полученные данные с нашими ожиданиями
+    assert status == 200
+    assert 'key' in pytest.key
+    yield
+
+# Ниже разберём случай применения атрибута 'pytest.key' и пару новых примочек:
+
+"""Тестируем удаление питомца по указанному ID"""
+
+# Получаем id питомца:
+# Эта функция нужна для получения валидного параметра 'pet_id' для теста удаления питомца: 'test_delete_first_pet'
+def get_pet_id():
+    # ФИЧА!!!: Используем переменную auth_key, так как НЕ для теста атрибут 'pytest.key' не будет работать, т.е.
+    # будет получена ошибка: AttributeError: module pytest has no attribute key.
+    _, auth_key = pf.get_api_key(valid_email, valid_password)
+    _, my_pets, _, _ = pf.get_list_of_pets(auth_key, "my_pets")
+    pet_id = my_pets['pets'][0]['id']
+    return pet_id
+
+# ПОЗИТИВНЫЙ ТЕСТ:
+@pytest.mark.parametrize("pet_id", [get_pet_id()], ids=['valid'])  # в параметрах, через функцию get_pet_id, получаем id
+def test_delete_first_pet(pet_id):
+    # Проверяем - если список своих питомцев пустой, пометим тест, как падающий через маркер xfail:
+    _, my_pets, _, _ = pf.get_list_of_pets(pytest.key, "my_pets")
+    if len(my_pets['pets']) == 0:
+        pytest.xfail("Тест рабочий, возможно просто нет загруженных питомцев.")
+    # Берём id питомца из параметра и отправляем запрос на удаление:
+    pytest.status, result, content, optional = pf.delete_pet(pytest.key, pet_id)
+    # Ещё раз запрашиваем список своих питомцев:
+    _, my_pets, _, _ = pf.get_list_of_pets(pytest.key, "my_pets")
+    with open("out_json.json", 'w', encoding='utf8') as my_file:
+        my_file.write(str(f"\n{pytest.status}\n{content}\n{optional}\nЗдесь был id питомца:'{result}'\nUser's pets:\n"))
+        json.dump(my_pets, my_file, ensure_ascii=False, indent=4)
+    # Проверяем что статус ответа равен 200 и в списке питомцев нет id удалённого питомца:
+    assert pytest.status == 200
+    assert pet_id not in my_pets.values()
+    # Плюс пару проверок на ответы в заголовках:
+    assert 'text/html' in content.get('Content-Type')
+    assert optional.get('auth_key') == pytest.key.get('key')
+
+
+# НЕГАТИВНЫЕ ТЕСТЫ (образец для параметров):
+@pytest.mark.parametrize("pet_id", ['', '55c01179-k2e9-41f7-81d9-d7888d47aae9', '59c011b9-d2e9-41f7-81d9-d7999d47aae9'],
+                         ids=['empty', 'unexistent', 'remote'])  # and other...
+def test_delete_first_pet_negative(pet_id):
+    # ...
