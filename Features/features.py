@@ -425,14 +425,14 @@ def get_pet_id():
 @pytest.mark.parametrize("pet_id", [get_pet_id()], ids=['valid'])  # в параметрах, через функцию get_pet_id, получаем id
 def test_delete_first_pet(pet_id):
     # Проверяем - если список своих питомцев пустой, пометим тест, как падающий через маркер xfail:
-    _, my_pets, _, _ = pf.get_list_of_pets(pytest.key, "my_pets")
+    _, my_pets, _, _ = pf.get_list_of_pets(pytest.key, "my_pets")  # указываем атрибут pytest.key вместо auth_key
     if len(my_pets['pets']) == 0:
         pytest.xfail("Тест рабочий, возможно просто нет загруженных питомцев.")
     # Берём id питомца из параметра и отправляем запрос на удаление:
     pytest.status, result, content, optional = pf.delete_pet(pytest.key, pet_id)
     # Ещё раз запрашиваем список своих питомцев:
     _, my_pets, _, _ = pf.get_list_of_pets(pytest.key, "my_pets")
-    with open("out_json.json", 'w', encoding='utf8') as my_file:
+    with open("out_json.json", 'w', encoding='utf8') as my_file:  # создаём файл out_json, куда пишем полученные ответы
         my_file.write(str(f"\n{pytest.status}\n{content}\n{optional}\nЗдесь был id питомца:'{result}'\nUser's pets:\n"))
         json.dump(my_pets, my_file, ensure_ascii=False, indent=4)
     # Проверяем что статус ответа равен 200 и в списке питомцев нет id удалённого питомца:
