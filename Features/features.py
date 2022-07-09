@@ -13,6 +13,7 @@ tests - папка с файлами в корне проекта,
 test_parametriz.py - название файла с тестами,
 test_triangle - имя тест-функции.
 Другие скрипты для вызова тестов и отчётов: https://docs.pytest.org/en/6.2.x/usage.html
+Full pytest documentation: https://docs.pytest.org/en/7.1.x/contents.html
 """
 
 
