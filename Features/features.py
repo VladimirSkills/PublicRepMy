@@ -1,3 +1,5 @@
+"""ИНТЕРЕСНЫЕ ФИШКИ ДЛЯ PYTEST"""
+
 from conftest import do_repeat_it, add_file_log  # импортируем декораторы
 from app.settings import valid_email, valid_password
 import inspect  # используем метод для возвращения имени функции
@@ -226,7 +228,7 @@ def time_delta():
 
 @pytest.mark.usefixtures("get_name_func")  # фикстура для вывода в консоли названия теста
 def test_get_api_key(get_api_key_fix):  # в аргументе функции - фикстура для получения ключа
-    result = get_api_key_fix
+    result = get_api_key_fix  # вместо auth_key везде в тест-функции указываем имя фикстуры - get_api_key_fix
     # Сверяем полученные данные с нашими ожиданиями
     assert 'key' in result
 
@@ -257,7 +259,7 @@ def time_delta_teardown(request):
     end_time = time.time_ns()
     print(f"Время теста для класса {request.node.name}: {(end_time - start_time)//1000000}мс")
 
-# ПРИМЕНЧАНИЕ!
+# ПРИМЕЧАНИЕ!
 """Блоки setup и teardown, в классическом представлении, используются внутри одной фикстуры:
 код setup...
 yield...
@@ -286,7 +288,9 @@ class TestDeletePets:
 
 
 
-"""ДЕКОРАТОРЫ / импортируются из файла: conftest.py - в котором они прописываются"""
+"""ДЕКОРАТОРЫ / импортируются из файла: conftest.py - в котором они прописываются...
+from conftest import _имя декоратора_"""
+
 # ФИЧА-12. Теория:
 def do_it_twice(func):  # создаём декоратор
    def wrapper(*args, **kwargs):  # эта функция wrapper выступает, как обёртка/шаблон для декорирования рабочей функции say_word. [*args, **kwargs] - аргументы, которые могут быть в рабочей функции, в данном случае say_word.
