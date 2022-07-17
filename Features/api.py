@@ -10,6 +10,15 @@ fake = Faker()
 faker.Generator.method_name() вызовы на faker.Generator.format(method_name).
 """
 logger = logging.getLogger("api")  # метод для вывода ответа в консоль
+"""
+Прописываем в файл pytest.ini (если нет, создаём) следующий код для работы метода getLogger:
+[pytest]
+disable_test_id_escaping_and_forfeit_all_rights_to_community_support = True
+log_format = %(asctime)s %(levelname)s %(message)s
+log_date_format = %Y-%m-%d %H:%M:%S
+log_cli=true
+log_level=INFO
+"""
 
 class RegisterUser:
     @staticmethod  # Фикстура создаёт и возвращает новый объект (см. её свойства Ctrl+Mouse). Работает в классе.
