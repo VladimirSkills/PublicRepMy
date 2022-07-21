@@ -473,3 +473,80 @@ def test_delete_first_pet(pet_id):
                          ids=['empty', 'unexistent', 'remote'])  # and other...
 def test_delete_first_pet_negative(pet_id):
     # ...
+
+
+
+
+"""TESTING ON SELENIUM"""
+
+import time  # just for demo purposes, do NOT repeat it on real projects!
+import win32clipboard  # для вставки из буфера (нужна установка pywin32)
+
+
+def test_paste_link(selenium):
+    """Тестируем Открытие видео по ссылке, копирование ссылки,
+    вставку ссылки в адресную строку и воспроизведение видео"""
+
+    # Драйвер chromedriver.exe помещаем в папку с тестом: tests
+    # Запуск теста (test_paste_link) из папки, где находится тестовый файл (test_selenium.py):
+    # pytest -v --driver Chrome --driver-path chromedriver.exe test_selenium.py::test_paste_link
+    # Запуск теста из корня проекта. Тестовый файл находится в папке tests:
+    # pytest -v --driver Chrome --driver-path tests\chromedriver.exe tests\test_selenium.py::test_paste_link
+
+    # Открываем страницу Web: (страница теста не приводится, но код рабочий)
+    selenium.get('https://.../')
+    # Разворачиваем окно браузера на весь экран:
+    selenium.maximize_window()
+    time.sleep(1)
+
+    # Нажимаем на скриншот видео, оно открывается в новом окне:
+    selenium.find_element_by_xpath('//div[@id="widget-54966c16-d7bc-331f-85f3-5e3f9ad11460"]//img').click()
+
+    # Активируем открывшуюся вкладку [-1] -> последняя открытая вкладка, [0] - предыдущая:
+    selenium.switch_to.window(selenium.window_handles[-1])  # дескриптор последней открытой вкладки
+
+    # Делаем скрин экрана:
+    selenium.save_screenshot('open_page_video.png')
+    time.sleep(1)
+
+    # Нажимаем на кнопку Copy Link для копирования ссылки на видео:
+    selenium.find_element_by_xpath('//button[@aria-label="Copy link"]').click()
+
+    # Открываем буфер обмена:
+    win32clipboard.OpenClipboard()
+    # Назначаем переменной url значение в буфере:
+    url = win32clipboard.GetClipboardData()
+    # Открываем новую вкладку с указанием адреса из буфера обмена:
+    selenium.execute_script(f"window.open('{url}', '_blank');")
+
+    # Активируем открывшуюся вкладку / дескриптор последней открытой вкладки:
+    selenium.switch_to.window(selenium.window_handles[-1])
+    # Закрываем буфер обмена:
+    win32clipboard.CloseClipboard()
+
+    # Нажимаем на видео для воспроизведения:
+    selenium.find_element_by_xpath('//div[@class="relative-el"]').click()
+    # Нажимаем на кнопку fullscreen:
+    selenium.find_element_by_xpath('//button[@class="control-bar-button video-player-fullscreen-button"]').click()
+    time.sleep(10)  # чутка смотрим кино
+    # Делаем скрин экрана:
+    selenium.save_screenshot('video_playback.png')
+
+
+    # Библиотеки для методов ниже:
+    # from selenium.webdriver import ActionChains
+    # from selenium.webdriver.common.keys import Keys
+
+    # Некоторые действия с текстом: (например, для теста выше в качестве 'element' можно использовать 'selenium')
+    # ActionChains(element).key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()  # вставка
+    # ActionChains(element).key_down(Keys.CONTROL).send_keys('a').key_up(Keys.CONTROL).perform()  # выделение
+    # ActionChains(element).key_down(Keys.BACKSPACE).key_up(Keys.BACKSPACE).perform()  # удаление
+
+    # Два варианта нажатия кнопки Enter: Keys.RETURN / Keys.ENTER
+    #ActionChains(element).key_down(Keys.CONTROL).send_keys(Keys.RETURN).key_up(Keys.CONTROL).perform()
+
+    # Использование TAB для перехода n-раз вперёд или назад по элементам страницы:
+    # for i in range(5):
+        # ActionChains(element).key_down(Keys.SHIFT).send_keys(Keys.TAB).perform()  # TAB назад
+        # ActionChains(element).key_down(Keys.TAB).perform()  # TAB вперёд
+
