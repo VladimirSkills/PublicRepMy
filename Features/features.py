@@ -479,6 +479,10 @@ def test_delete_first_pet_negative(pet_id):
 
 """TESTING ON SELENIUM"""
 
+# https://pytest-selenium.readthedocs.io/en/latest/user_guide.html
+# https://habr.com/ru/company/otus/blog/596071/
+# https://selenium-python.readthedocs.io/api.html
+
 import time  # just for demo purposes, do NOT repeat it on real projects!
 import win32clipboard  # для вставки из буфера (нужна установка pywin32)
 
