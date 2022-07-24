@@ -554,3 +554,11 @@ def test_paste_link(selenium):
         # ActionChains(element).key_down(Keys.SHIFT).send_keys(Keys.TAB).perform()  # TAB назад
         # ActionChains(element).key_down(Keys.TAB).perform()  # TAB вперёд
 
+
+"""Если к тесту добавить функцию, которая импортирует запрос к API из папки app, например: from app.api import PetFriends,
+то товарищ Selenium будет ругаться:
+ERROR: not found: C:\Users\PC\PycharmProjects\PySelenFix\tests\test_selenium.py::test_petfriends_signUp
+(no name 'C:\\Users\\PC\\PycharmProjects\\PySelenFix\\tests\\test_selenium.py::test_petfriends_signUp' in any of [<Module test_selenium.py>])
+Задачка решается добавлением пустого файла с именем: __init__.py в папку с тестами...
+Это передаёт pytest, что родительский каталог папки это директория с проектом..."""
+
