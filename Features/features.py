@@ -483,6 +483,19 @@ def test_delete_first_pet_negative(pet_id):
 # https://habr.com/ru/company/otus/blog/596071/
 # https://selenium-python.readthedocs.io/api.html
 
+"""
+import logging  # Логгирование. Для вывода ответа в консоли
+logger = logging.getLogger("имя запускаемого файла")  # -> для вывода ответа в консоль
+Также прописываем в файл pytest.ini следующий код для работы метода getLogger:
+[pytest]
+disable_test_id_escaping_and_forfeit_all_rights_to_community_support = True
+log_format = %(asctime)s %(levelname)s %(message)s
+log_date_format = %Y-%m-%d %H:%M:%S
+log_cli=true
+log_level=INFO
+"""
+
+
 import time  # just for demo purposes, do NOT repeat it on real projects!
 import win32clipboard  # для вставки из буфера (нужна установка pywin32)
 
@@ -561,4 +574,46 @@ ERROR: not found: C:\Users\PC\PycharmProjects\PySelenFix\tests\test_selenium.py:
 (no name 'C:\\Users\\PC\\PycharmProjects\\PySelenFix\\tests\\test_selenium.py::test_petfriends_signUp' in any of [<Module test_selenium.py>])
 Задачка решается добавлением пустого файла с именем: __init__.py в папку с тестами...
 Это передаёт pytest, что родительский каталог папки это директория с проектом..."""
+
+
+
+"""
+Для случайной генерации данных для регистрации, можно использовать библиотеку faker (нужно установить).
+Каждый вызов метода fake.name() дает другой (случайный) результат. Это потому, что фейкер перенаправляет 
+faker.Generator.method_name() вызовы на faker.Generator.format(method_name).
+"""
+from faker import Faker  # Для генерации случайного email и password для регистрации
+fake = Faker()
+
+class RegisterUser:
+    @staticmethod  # Фикстура создаёт и возвращает новый объект (см. её свойства Ctrl+Mouse). Работает в классе.
+    def random():  # Функция генерирует каждый раз валидные данные
+        name = fake.name()
+        email = fake.email()
+        password = fake.password()
+        return {"name": name, "email": email, "pass": password}
+        # вариант №2: return name, email, password
+
+# примеры вызова из другой функции с классом (часть кода). Для отправки API-запроса:
+data = RegisterUser.random()
+res = requests.post(self.base_url + 'new_user', data=self.data)
+# вариант №2 (для регистрации на сайте):
+name, email, password = RegisterUser.random()
+
+
+
+"""Работа с Cookies в Selenium тестах"""
+import pickle
+# Сохраняем cookie в файл cookies.pkl (после авторизации и входа на сайт) / часть кода:
+with open('cookies.pkl', 'wb') as cookies:  # ('cookies.pkl', 'wb', encoding='utf8')
+    pickle.dump(selenium.get_cookies(), cookies)
+
+# Загрузка cookie на сайт для авторизации (после повторного входа):
+for cookie in pickle.load(open('cookies.pkl', 'rb')):
+    selenium.add_cookie(cookie)
+
+# Обновляем страницу, куки подгружаются и происходит авторизация:
+selenium.refresh()
+
+
 
